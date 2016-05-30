@@ -9,6 +9,20 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </head>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBUiXY6sIFFUFsIGcwKGuFrJ2koPzWmZyo",
+    authDomain: "sbcs-hood-marathon.firebaseapp.com",
+    databaseURL: "https://sbcs-hood-marathon.firebaseio.com",
+    storageBucket: "sbcs-hood-marathon.appspot.com",
+  };
+  firebase.initializeApp(config);
+</script>
+
 <body>
 
 <div id="header">
@@ -69,29 +83,29 @@
       <h3>  Volunteer</h3>
       <p> If you're wanting to help out at an event please fill out the infromation below and we will contact you.</p>
       First Name:<br>
-      <input type="text" name="FirstName"><br>
+      <input type="text" name="FirstName" id="volunteer-fname"><br>
       Last Name:<br>
-      <input type="text" name="LastName"><br>
+      <input type="text" name="LastName" id="volunteer-lname"><br>
       D.O.B:<br>
-      <input type="text" name="D.O.B"><br>
+      <input type="text" name="D.O.B" id="volunteer-dob"><br>
       Cell:<br>
-      <input type="text" name="Cell"><br>
+      <input type="text" name="Cell" id="volunteer-cell"><br>
       Email:<br>
-      <input type="text" name="Email"><br>
+      <input type="text" name="Email" id="volunteer-email"><br>
       Address:<br>
-      <input type="text" name="Address"><br>
+      <input type="text" name="Address" id="volunteer-address"><br>
       City:<br>
-      <input type="text" name="City"><br>
+      <input type="text" name="City" id="volunteer-city"><br>
       State:<br>
-      <input type="text" name="State"><br>
+      <input type="text" name="State" id="volunteer-state"><br>
 
       <h4> Position </h4>
-      <select>
-        <option value="Position">Cook</option>
-        <option value="Position">Kitchen Staff</option>
-        <option value="Position">Support Staff</option>
-        <option value="Position">Security</option>
-        <option value="Position">First Aid</option>
+      <select id="volunteer-position">
+        <option value="Cook">Cook</option>
+        <option value="Kitchen Staff">Kitchen Staff</option>
+        <option value="Support Staff">Support Staff</option>
+        <option value="Security">Security</option>
+        <option value="First Aid">First Aid</option>
       </select>
       </form>
       <p> </p>
@@ -100,9 +114,9 @@
       to dress appropriate. I will not fight or cause any conflicts between others
        If I would to break any of these rules I understand the actions that will take place. </p>
      <form action="">
-       <input type="checkbox" name="Agreed" value="Agree"> I Agree <br>
+       <input type="checkbox" name="Agreed" value="Agree" id="volunteer-checkbox"> I Agree <br>
      </form>
-     <button type="button">Submit</button>
+     <button type="button" id="post-button-volunteer">Submit</button>
     </div>
 
     <div id="menu3" class="tab-pane fade">
@@ -111,29 +125,31 @@
       <p> If you would like to register an event please fill out the information below and someone will get back with you.</p>
 
         First Name:<br>
-        <input type="text" name="FirstName"><br>
+        <input type="text" name="FirstName" id="register-fname"><br>
         Last Name:<br>
-        <input type="text" name="LastName"><br>
+        <input type="text" name="LastName" id="register-lname"><br>
         D.O.B:<br>
-        <input type="text" name="D.O.B"><br>
+        <input type="text" name="D.O.B" id="register-dob"><br>
         Cell:<br>
-        <input type="text" name="Cell"><br>
+        <input type="text" name="Cell" id="register-cell"><br>
         Email:<br>
-        <input type="text" name="Email"><br>
+        <input type="text" name="Email" id="register-email"><br>
         Location:<br>
-        <input type="text" name="Location"><br>
+        <input type="text" name="Location" id="register-location"><br>
         Time:<br>
-        <input type="text" name="Time"><br>
+        <input type="text" name="Time" id="register-time"><br>
         Date:<br>
-        <input type="text" name="Date"><br>
+        <input type="text" name="Date" id="register-date"><br>
         Event Title:<br>
-        <input type="text" name="Event Title"><br>
+        <input type="text" name="Event Title" id="register-title"><br>
         Description:<br>
-        <input type="text" name="Description"><br>
+        <input type="text" name="Description" id="register-description"><br>
       </div>
       <p> </p>
-          <button type="button">Submit</button>
+          <button type="button" id="post-button-register">Submit</button>
     </div>
+    
+    <script src="scripts/main.js"></script>
 
     <div id="menu4" class="tab-pane fade">
       <h3>Gallery</h3>
