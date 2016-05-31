@@ -25,6 +25,8 @@ var positionVolunteer = document.getElementById('volunteer-position');
 var checkboxVolunteer = document.getElementById('volunteer-checkbox');
 var postButtonVolunteer = document.getElementById('post-button-volunteer');
 
+var myPostsSection = document.getElementById('my-posts-list');
+
 /**
  * Saves a new post to the Firebase DB.
  */
@@ -49,7 +51,7 @@ function writeNewPost(firstName, lastName, dob, cell, email, location, time, dat
 
   // Write the new post's data simultaneously in the posts list and the user's post list.
   var updates = {};
-  updates['/register/' + newPostKey] = postData;
+  updates['/events/' + newPostKey] = postData;
 
   return firebase.database().ref().update(updates);
 }
@@ -74,61 +76,39 @@ function writeNewPostVolunteer(firstName, lastName, dob, cell, email, address, c
 
   // Write the new post's data simultaneously in the posts list and the user's post list.
   var updates = {};
-  updates['/volunteer/' + newPostKey] = postData;
+  updates['/volunteers/' + newPostKey] = postData;
 
   return firebase.database().ref().update(updates);
 }
 
 /**
- * Creates a post element.
+ * Creates an event element.
  */
-function createPostElement(postId, title, text, author) {
-  var uid = firebase.auth().currentUser.uid;
+function createPostElement(title, date, time, location, description) {
 
   var html =
-      '<div class="post mdl-cell mdl-cell--12-col ' +
-                  'mdl-cell--6-col-tablet mdl-cell--4-col-desktop mdl-grid mdl-grid--no-spacing">' +
-        '<div class="mdl-card mdl-shadow--2dp">' +
-          '<div class="mdl-card__title mdl-color--light-blue-600 mdl-color-text--white">' +
-            '<h4 class="mdl-card__title-text"></h4>' +
-          '</div>' +
-          '<div class="header">' +
-            '<div>' +
-              '<div class="avatar"></div>' +
-              '<div class="username mdl-color-text--black"></div>' +
-            '</div>' +
-          '</div>' +
-          '<span class="star">' +
-            '<div class="not-starred material-icons">star_border</div>' +
-            '<div class="starred material-icons">star</div>' +
-            '<div class="star-count">0</div>' +
-          '</span>' +
-          '<div class="text"></div>' +
-          '<div class="comments-container"></div>' +
-          '<form class="add-comment" action="#">' +
-            '<div class="mdl-textfield mdl-js-textfield">' +
-              '<input class="mdl-textfield__input new-comment" type="text">' +
-              '<label class="mdl-textfield__label">Comment...</label>' +
-            '</div>' +
-          '</form>' +
-        '</div>' +
+      '<div class="event">' +
+      '<img src= "http://media.philly.com/images/040815-samir-hill-600.jpg"width="300" >' +
+      '<h3 class="title"></h3>' +
+      '<h4 class="date"></h4>' +
+      '<h4>at</h4>' +
+      '<h4 class="time"></h4>' +
+      '<h4 class="location"></h4>' +
+      '<p class="description"></p>' +
+      '<a data-toggle="tab" href="#menu2"><button type="button">Volunteer</button></a>' +
       '</div>';
 
   // Create the DOM element from the HTML.
   var div = document.createElement('div');
   div.innerHTML = html;
   var postElement = div.firstChild;
-  componentHandler.upgradeElements(postElement.getElementsByClassName('mdl-textfield')[0]);
-
-  var addCommentForm = postElement.getElementsByClassName('add-comment')[0];
-  var commentInput = postElement.getElementsByClassName('new-comment')[0];
-  var star = postElement.getElementsByClassName('starred')[0];
-  var unStar = postElement.getElementsByClassName('not-starred')[0];
-
+  
   // Set values.
-  postElement.getElementsByClassName('text')[0].innerText = text;
-  postElement.getElementsByClassName('mdl-card__title-text')[0].innerText = title;
-  postElement.getElementsByClassName('username')[0].innerText = author;
+  postElement.getElementsByClassName('title')[0].innerText = title;
+  postElement.getElementsByClassName('date')[0].innerText = date;
+  postElement.getElementsByClassName('time')[0].innerText = time;
+  postElement.getElementsByClassName('location')[0].innerText = "Located at " + location;
+  postElement.getElementsByClassName('description')[0].innerText = description;
 
   return postElement;
 }
@@ -137,27 +117,18 @@ function createPostElement(postId, title, text, author) {
  * Starts listening for new posts and populates posts lists.
  */
 function startDatabaseQueries() {
-  // [START my_top_posts_query]
-  var myUserId = firebase.auth().currentUser.uid;
-  var topUserPostsRef = firebase.database().ref('user-posts/' + myUserId).orderByChild('starCount');
-  // [END my_top_posts_query]
-  // [START recent_posts_query]
-  var recentPostsRef = firebase.database().ref('posts').limitToLast(100);
-  // [END recent_posts_query]
-  var userPostsRef = firebase.database().ref('user-posts/' + myUserId);
+  var myPostsRef = firebase.database().ref('events/');
 
   var fetchPosts = function(postsRef, sectionElement) {
     postsRef.on('child_added', function(data) {
       var containerElement = sectionElement.getElementsByClassName('posts-container')[0];
       containerElement.insertBefore(
-          createPostElement(data.key, data.val().title, data.val().body, data.val().author),
+          createPostElement(data.val().title, data.val().date, data.val().time, data.val().location, data.val().description),
           containerElement.firstChild);
     });
   };
 
-  fetchPosts(topUserPostsRef, topUserPostsSection);
-  fetchPosts(recentPostsRef, recentPostsSection);
-  fetchPosts(userPostsRef, userPostsSection);
+  fetchPosts(myPostsRef, myPostsSection);
 }
 
 // Bindings on load.
@@ -171,6 +142,7 @@ window.addEventListener('load', function() {
         // [START_EXCLUDE]
         writeNewPostVolunteer(fNameVolunteer.value, lNameVolunteer.value, dobVolunteer.value, cellVolunteer.value, emailVolunteer.value, addressVolunteer.value, cityVolunteer.value, stateVolunteer.value, positionVolunteer.value).then(function() {
               console.log("Submitted Volunteer");
+              location.reload();
             });
         // [END_EXCLUDE]
     };
@@ -184,8 +156,14 @@ window.addEventListener('load', function() {
         // [START_EXCLUDE]
         writeNewPost(fNameRegister.value, lNameRegister.value, dobRegister.value, cellRegister.value, emailRegister.value, locationRegister.value, timeRegister.value, dateRegister.value, titleRegister.value, descriptionRegister.value).then(function() {
               console.log("Submitted Register");
+              location.reload();
             });
         // [END_EXCLUDE]
     };
   }
+  
+  // Listen for auth state changes
+    startDatabaseQueries(); 
+    myPostsSection.style.display = 'block';
+    
 }, false);
