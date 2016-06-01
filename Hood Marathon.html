@@ -18,9 +18,14 @@
     apiKey: "AIzaSyBUiXY6sIFFUFsIGcwKGuFrJ2koPzWmZyo",
     authDomain: "sbcs-hood-marathon.firebaseapp.com",
     databaseURL: "https://sbcs-hood-marathon.firebaseio.com",
-    storageBucket: "sbcs-hood-marathon.appspot.com",
+    storageBucket: "sbcs-hood-marathon.appspot.com"
   };
   firebase.initializeApp(config);
+
+  // Firebase storage
+  var storage = firebase.storage();
+  var storageRef = storage.ref();
+  var imagesRef = storageRef.child('images');
 </script>
 
 <body>
@@ -124,7 +129,7 @@
         Description:<br>
         <textarea rows="4" cols="50" type="textarea" name="Description" id="register-description"></textarea><br>
         <h4>Upload a Photo for Your Event</h4>
-        <input id="myfiles" multiple type="file">
+        <input id="myfiles" type="file">
       </div>
       <button type="button" id="post-button-register">Submit</button>
     </div>

@@ -12,6 +12,7 @@ var titleRegister = document.getElementById('register-title');
 var descriptionRegister = document.getElementById('register-description');
 var postButtonRegister = document.getElementById('post-button-register');
 
+
 // Shortcuts to DOM Elements - Volunteer.
 var fNameVolunteer = document.getElementById('volunteer-fname');
 var lNameVolunteer = document.getElementById('volunteer-lname');
@@ -32,28 +33,49 @@ var myPostsSection = document.getElementById('my-posts-list');
  */
 // Register Submittal
 function writeNewPost(firstName, lastName, dob, cell, email, location, time, date, title, description) {
-  // A post entry.
-  var postData = {
-    firstName: firstName,
-    lastName: lastName,
-    dob: dob,
-    cell: cell,
-    email: email,
-    location: location,
-    time: time,
-    date: date,
-    title: title,
-    description, description
-  };
 
-  // Get a key for a new Post.
-  var newPostKey = firebase.database().ref().child('posts').push().key;
+  var selectedFile = document.getElementById('myfiles').files[0];
+  // Firebase Paths
+  var path = "images/" + firstName + "_" + lastName + "_" + selectedFile.name;
+  var pathRef = storageRef.child(path)
+  // Upload
+  var uploadTask = pathRef.put(selectedFile);
 
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/events/' + newPostKey] = postData;
+  uploadTask.on('state_changed', function(snapshot){
+  }, function(error) {
+      console.log("Error uploading file");
+  }, function() {
+      var downloadURL = uploadTask.snapshot.downloadURL;
+      console.log("File uploaded successfully");
+      // A post entry.
+      var postData = {
+        firstName: firstName,
+        lastName: lastName,
+        dob: dob,
+        cell: cell,
+        email: email,
+        location: location,
+        time: time,
+        date: date,
+        title: title,
+        description: description,
+        imgURL: downloadURL
+      };
 
-  return firebase.database().ref().update(updates);
+      // Get a key for a new Post.
+      var newPostKey = firebase.database().ref().child('posts').push().key;
+
+      // Write the new post's data simultaneously in the posts list and the user's post list.
+      var updates = {};
+      updates['/events/' + newPostKey] = postData;
+
+      console.log("Submitted Register");
+      window.location.reload();
+
+      return firebase.database().ref().update(updates);
+  });
+
+
 }
 
 // Volunteer Submittal
@@ -84,11 +106,11 @@ function writeNewPostVolunteer(firstName, lastName, dob, cell, email, address, c
 /**
  * Creates an event element.
  */
-function createPostElement(title, date, time, location, description) {
+function createPostElement(title, date, time, location, description, imageURL) {
 
   var html =
       '<div class="event">' +
-      '<img src= "http://media.philly.com/images/040815-samir-hill-600.jpg"width="300" >' +
+      '<img src= "'+imageURL+'"width="300" >' +
       '<h3 class="title"></h3>' +
       '<h4 class="date"></h4>' +
       '<h4>at</h4>' +
@@ -102,7 +124,7 @@ function createPostElement(title, date, time, location, description) {
   var div = document.createElement('div');
   div.innerHTML = html;
   var postElement = div.firstChild;
-  
+
   // Set values.
   postElement.getElementsByClassName('title')[0].innerText = title;
   postElement.getElementsByClassName('date')[0].innerText = date;
@@ -123,7 +145,7 @@ function startDatabaseQueries() {
     postsRef.on('child_added', function(data) {
       var containerElement = sectionElement.getElementsByClassName('posts-container')[0];
       containerElement.insertBefore(
-          createPostElement(data.val().title, data.val().date, data.val().time, data.val().location, data.val().description),
+          createPostElement(data.val().title, data.val().date, data.val().time, data.val().location, data.val().description, data.val().imgURL),
           containerElement.firstChild);
     });
   };
@@ -133,7 +155,7 @@ function startDatabaseQueries() {
 
 // Bindings on load.
 window.addEventListener('load', function() {
-    
+
   // Volunteer Section
   postButtonVolunteer.onclick = function(e) {
     console.log("Volunteer Button clicked");
@@ -147,23 +169,20 @@ window.addEventListener('load', function() {
         // [END_EXCLUDE]
     };
   }
-  
+
   // Register Section
   postButtonRegister.onclick = function(e) {
     console.log("Register Button clicked");
     e.preventDefault();
     if (fNameRegister.value && lNameRegister.value) {
         // [START_EXCLUDE]
-        writeNewPost(fNameRegister.value, lNameRegister.value, dobRegister.value, cellRegister.value, emailRegister.value, locationRegister.value, timeRegister.value, dateRegister.value, titleRegister.value, descriptionRegister.value).then(function() {
-              console.log("Submitted Register");
-              location.reload();
-            });
+        writeNewPost(fNameRegister.value, lNameRegister.value, dobRegister.value, cellRegister.value, emailRegister.value, locationRegister.value, timeRegister.value, dateRegister.value, titleRegister.value, descriptionRegister.value)
         // [END_EXCLUDE]
     };
   }
-  
+
   // Listen for auth state changes
-    startDatabaseQueries(); 
+    startDatabaseQueries();
     myPostsSection.style.display = 'block';
-    
+
 }, false);
